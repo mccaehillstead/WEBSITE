@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+  <audio id="correctSound" src="webapp_images_audio/correct-sound.mp3"></audio>
+  <audio id="wrongSound" src="webapp_images_audio/incorrect-sound.mp3"></audio>
+  <audio id="endQuiz" src="webapp_images_audio/end-quiz.mp3"></audio>
+  <title>Fly Fishing Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 40px;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .quiz-container {
+      width: 90%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 60px;
+    }
+    .quiz-image {
+        width: 100%;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        object-fit: cover;
+    }
+    .question {
+      display: none;
+      animation: slideIn 0.5s forwards;
+    }
+    .question.active {
+      display: block;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    h2 { margin-bottom: 10px; }
+    .answers button {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      background-color: #add8e6;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    h1 {
+      color: darkolivegreen;
+      font-family: 'Merriweather', serif;
+      text-align: center; 
+      margin-bottom: 40px; 
+      font-size: 2em;
+    }
+    .answers button:hover {
+      background-color: #87ceeb;
+    }
+    .score {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+    .feedback {
+      font-size: 1rem;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    Test Your Fly Fishing Knowledge
+  </h1>
+  <!-- <div class="quiz-container" id="quiz"></div> -->
+   <div class="quiz-container">
+  <img src="webapp_images_audio/TROUT_TAKING_FLY.jpg" alt="Trout Taking Fly" class="quiz-image">
+
+  <div id="progress" style="margin-bottom: 20px; font-family: 'Merriweather', serif; font-size: 1rem; text-align: center;"></div>
+  
+  <div id="quiz"></div>
+  </div>
+  <a href="scratch_page.html" style="margin-bottom: 40px; font-family: 'Merriweather', serif; font-size: 1rem; color: darkolivegreen; text-decoration: underline;">
+  ← Back to Scratch Page
+  </a>
+  <script>
+    const questions = [
+      {
+        question: "What is the ideal time of day for fishing?",
+        answers: [
+          "Noon",
+          "Afternoon",
+          "Midnight",
+          "Sunrise or Sunset"
+        ],
+        correct: 3
+      },
+      {
+        question: "What is often considered the most critical aspect of fly fishing success?",
+        answers: [
+          "Matching the hatch",
+          "Using the heaviest tippet possible",
+          "Fishing only in fast-moving water",
+          "Casting as far as possible"
+        ],
+        correct: 0
+      },
+      {
+        question: "Why is a \"drag-free drift\" so important in fly fishing?",
+        answers: [
+          "To make the fly sink faster",
+          "To attract larger fish",
+          "To achieve a natural drift",
+          "To prevent the fly from tangling"
+        ],
+        correct: 2
+      },
+      {
+        question: "Which type of fly is designed to float on the surface of the water?",
+        answers: ["Dry fly", "Nymph", "Streamer", "Wet fly"],
+        correct: 0
+      },
+      {
+        question: "What is the main reason for matching your fly line weight to your fly rod?",
+        answers: [
+          "To provide extra weight for casting",
+          "To match the rod's recommended line weight",
+          "To make the fly more visible to fish",
+          "To keep the fly from sinking"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is the primary purpose of fly floatant?",
+        answers: [
+          "To provide additional flotation for dry flies",
+          "To clean the fly line",
+          "To make knots stronger",
+          "To protect the rod from water damage"
+        ],
+        correct: 0
+      },
+      {
+        question: "In entomology and fly tying, what part of an insect’s body does the \"abdomen\" refer to?",
+        answers: [
+          "The largest part of the insect’s body",
+          "The tail section of the insect",
+          "The wings of the insect",
+          "The head of the insect"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is the main function of a tapered leader in fly fishing?",
+        answers: [
+          "To create a strong connection to the fly line",
+          "To make the fly more visible to the angler",
+          "To allow for a smooth transfer of casting energy and delicate fly presentation",
+          "To prevent the fly from sinking too quickly"
+        ],
+        correct: 2
+      },
+      {
+        question: "For what type of fishing is a 9-foot 5-weight fly rod generally considered the most versatile?",
+        answers: [
+          "Small, clear mountain streams",
+          "Large rivers and stillwaters targeting trout and bass",
+          "Saltwater flats for bonefish",
+          "Casting large, heavy flies for pike"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is \"mending\" in fly fishing?",
+        answers: [
+          "To slow down the fly's drift",
+          "To prevent the fly line from tangling",
+          "To remove slack from the line immediately after casting",
+          "To correct the fly line’s position on the water to achieve a drag-free drift"
+        ],
+        correct: 3
+      },
+      {
+        question: "What does \"reading the water\" primarily involve in fly fishing?",
+        answers: [
+          "Memorizing common fly patterns",
+          "Identifying prime fish holding lies and feeding lanes",
+          "Predicting the weather conditions for the day",
+          "Knowing the exact depth of the river"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is the primary advantage of a knotless tapered leader?",
+        answers: [
+          "To allow for quicker fly changes",
+          "To reduce line memory",
+          "To eliminate hinge points and improve casting accuracy and presentation",
+          "To increase the leader's breaking strength"
+        ],
+        correct: 2
+      },
+      {
+        question: "In a tapered leader, what is the \"butt section\"?",
+        answers: [
+          "The part of the line that attaches directly to the fly",
+          "The thickest section of a tapered leader, connected to the fly line",
+          "The very tip of the fly rod",
+          "The spool on a fly reel"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is the primary purpose of fly line backing?",
+        answers: [
+          "Only when using sinking lines",
+          "To add weight to the reel",
+          "To increase the total line capacity of the reel for fighting larger fish",
+          "To prevent the fly line from tangling on the reel"
+        ],
+        correct: 2
+      },
+      {
+        question: "When are \"emerger\" fly patterns most effective?",
+        answers: [
+          "When fish are actively feeding on emerging insects",
+          "When targeting bottom-dwelling fish",
+          "When the water is extremely clear",
+          "When fishing in very fast currents"
+        ],
+        correct: 0
+      },
+      {
+        question: "What is the primary function of a \"strike indicator\"?",
+        answers: [
+          "To help the angler see the fly better",
+          "To add weight to the leader",
+          "To signal subtle strikes from fish on subsurface flies",
+          "To keep the fly from sinking too deep"
+        ],
+        correct: 2
+      },
+      {
+        question: "Why are swivels generally not recommended for fly fishing?",
+        answers: [
+          "When fishing for very small fish",
+          "To reduce line twist and prevent the fly from spinning",
+          "To make the fly sink faster",
+          "To attach multiple flies to the leader"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is the \"double haul\" in fly casting?",
+        answers: [
+          "The technique of casting multiple flies at once",
+          "A casting technique used to generate more line speed and cast further or into wind",
+          "A method of retrieving line quickly",
+          "The act of landing two fish simultaneously"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is the purpose of applying \"fly line dressing\"?",
+        answers: [
+          "To keep the fly line from freezing in cold weather",
+          "To clean and lubricate the fly line for better casting and flotation",
+          "To make the fly line sink faster",
+          "To add scent to the fly line to attract fish"
+        ],
+        correct: 1
+      },
+      {
+        question: "What is a \"streamer\" in fly fishing?",
+        answers: [
+          "A large, heavy fly used for saltwater fishing",
+          "A fly pattern designed to imitate baitfish or leeches",
+          "A small, delicate dry fly",
+          "A type of knot used to attach the fly to the leader"
+        ],
+        correct: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    const quiz = document.getElementById('quiz');
+
+    function showQuestion(index) {
+      const q = questions[index];
+
+      document.getElementById('progress').innerText = `Question ${index + 1} of ${questions.length}`;
+
+      const questionDiv = document.createElement('div');
+      questionDiv.classList.add('question', 'active');
+
+      const title = document.createElement('h2');
+      title.innerText = `Q${index + 1}. ${q.question}`;
+      questionDiv.appendChild(title);
+
+      const answerDiv = document.createElement('div');
+      answerDiv.classList.add('answers');
+
+      const feedback = document.createElement('div');
+      feedback.classList.add('feedback');
+
+      q.answers.forEach((a, i) => {
+        const btn = document.createElement('button');
+        btn.innerText = a;
+        btn.onclick = () => {
+          if (i === q.correct) {
+            score++;
+            document.getElementById("correctSound").play();
+            feedback.innerText = '🎣 Correct!';
+            feedback.style.color = 'green';
+          } else {
+            document.getElementById("wrongSound").play();
+            feedback.innerText = '❌ Incorrect';
+            feedback.style.color = 'red';
+          }
+          setTimeout(() => {
+            quiz.innerHTML = '';
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+              showQuestion(currentQuestion);
+            } else {
+              showScore();
+            }
+          }, 1000);
+        };
+        answerDiv.appendChild(btn);
+      });
+
+      questionDiv.appendChild(answerDiv);
+      questionDiv.appendChild(feedback);
+      quiz.appendChild(questionDiv);
+    }
+
+  function showScore() {
+    const result = document.createElement('div');
+    result.classList.add('score');
+    let message = '';
+    if (score === questions.length) {
+      message = '🏆 Perfect! You’re a pro!';
+    } else if (score > questions.length * 0.7) {
+      message = '🎯 Great job! Solid knowledge.';
+    } else {
+      message = '🐟 Keep practicing—more casts, more catches.';
+    }
+    document.getElementById("endQuiz").play();
+    result.innerHTML = `<h2>Your Score:</h2><p>${score} out of ${questions.length}</p><p>${message}</p>`;
+    quiz.appendChild(result);
+  }
+
+
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
